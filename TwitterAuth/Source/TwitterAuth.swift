@@ -1,6 +1,6 @@
 //
 //  ReverseOAuth.swift
-//  TwitterReverseOAuth
+//  TwitterAuth
 //
 //  Created by Pol Quintana on 30/01/16.
 //  Copyright © 2016 Pol Quintana. All rights reserved.
@@ -35,6 +35,8 @@ public class TwitterAuth {
     private var apiManager: APIManager = APIManager()
     private let webManager: TwicketWebManager = TwicketWebManager()
     
+    private var lastOAuthToken: String?
+    
     public func configure(withConsumerKey consumerKey: String, consumerSecret: String, callbackURL: String) {
         self.apiManager.consumerKey = consumerKey
         self.apiManager.consumerSecret = consumerSecret
@@ -51,9 +53,9 @@ public class TwitterAuth {
     
     public func executeReverseOAuthWithAvailableAccounts(onViewController vc: UIViewController,
         completion: TwitterAuthCompletion) {
-            getTwitterAccounts { (accounts, error) in
+            getTwitterAccounts { accounts, error in
                 guard let accounts = accounts else {
-                    return Threading.executeOnMainThread { completion(result: nil, error: error) }
+                    return Threading.executeOnMainThread { completion(result: nil, error: error ?? .NoAccessToAccounts) }
                 }
                 self.showAccountsAlertView(onViewController: vc, withAccounts: accounts) { selectedAccount in
                     self.executeReverseOAuth(forAccount: selectedAccount, completion: completion)
@@ -62,29 +64,34 @@ public class TwitterAuth {
     }
     
     public func presentWebLogin(fromViewController viewController: UIViewController) {
-        Threading.executeOnBackgroundThread {
-            self.apiManager.obtainRequestToken(self.webManager.callbackStringURL) { token, error in
-                Threading.executeOnMainThread {
-                    guard let token = token else {
-                        self.notifyWebLoginError(error ?? .Unknown)
-                        return
-                    }
-                    self.webManager.openLogin(onViewController: viewController, token: token)
+        apiManager.obtainRequestToken(self.webManager.callbackStringURL) { token, error in
+            Threading.executeOnMainThread {
+                guard let token = token else {
+                    self.notifyWebLoginError(error ?? .Unknown)
+                    return
                 }
+                self.lastOAuthToken = token
+                self.webManager.openLogin(onViewController: viewController, token: token)
             }
         }
     }
     
     public func processAuthCallback(callback: NSURL) {
-        Threading.executeOnBackgroundThread {
-            self.webManager.processAuthCallback(callback) { result, error in
-                Threading.executeOnMainThread {
-                    guard let result = result else {
-                        self.notifyWebLoginError(error ?? .Unknown)
-                        return
-                    }
-                    self.notifyWebLoginSuccess(result)
+        let callback = callback.absoluteString
+        guard callback.containsString(self.webManager.callbackStringURL),
+            let result = RedirectionResult(stringResponse: callback)
+            where result.oauthToken == self.lastOAuthToken else {
+                //TODO: DO SOMETHING
+                return
+        }
+        
+        apiManager.obtainAccessToken(withResult: result) { (result, error) -> () in
+            Threading.executeOnMainThread {
+                guard let result = result else {
+                    self.notifyWebLoginError(error ?? .Unknown)
+                    return
                 }
+                self.notifyWebLoginSuccess(result)
             }
         }
     }
@@ -103,7 +110,8 @@ public class TwitterAuth {
     }
     
     private func hideSafariViewController() {
-        print(self.webLoginDelegate)
+        self.lastOAuthToken = nil
+        self.webManager.clearSafariViewController()
     }
     
     private func getTwitterAccounts(completion: (accounts: [ACAccount]?, error: TwitterAuthError?) -> ()) {

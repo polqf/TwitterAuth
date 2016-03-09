@@ -1,6 +1,6 @@
 //
 //  SignedRequest.swift
-//  TwitterReverseOAuth
+//  TwitterAuth
 //
 //  Created by Pol Quintana on 30/01/16.
 //  Copyright © 2016 Pol Quintana. All rights reserved.
@@ -45,6 +45,9 @@ public struct SignedRequest {
             self.oauthCallback = oauthCallback
             self.oauthToken = oauthToken
     }
+    
+    
+    //MARK: Private
     
     private func buildRequest() -> NSURLRequest? {
         guard let bodyData = buildBodyData() else { return nil }

@@ -107,7 +107,7 @@ class ViewController: UIViewController {
         accountStore.requestAccessToAccountsWithType(type, options: nil) { succeed, error in
             if succeed {
                 guard let accounts = accountStore.accountsWithAccountType(type) as? [ACAccount] else { return }
-                if accounts.isEmpty { self.showAlert("No available accounts") }
+                if accounts.isEmpty { print("No available accounts") }
                 self.accounts = accounts
             }
         }
