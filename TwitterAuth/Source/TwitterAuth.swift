@@ -67,16 +67,16 @@ public class TwitterAuth {
     }
     
     public func presentWebLogin(fromViewController viewController: UIViewController) {
-        let loader = showLoader(onViewController: viewController)
+        let loader = LoaderManager.showLoader()
         apiManager.obtainRequestToken(self.callbackStringURL) { token, error in
             Threading.executeOnMainThread {
-                loader.stopAnimating()
+//                loader.removeLoader()
                 guard let token = token else {
                     self.notifyWebLoginError(error ?? .Unknown)
                     return
                 }
                 self.lastOAuthToken = token
-                self.webManager.openLogin(onViewController: viewController, token: token)
+//                self.webManager.openLogin(onViewController: viewController, token: token)
             }
         }
     }
@@ -105,14 +105,14 @@ public class TwitterAuth {
     
     //MARK: Private methods
     
-    private func showLoader(onViewController vc: UIViewController) -> UIActivityIndicatorView {
-        let activity = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
-        activity.center = vc.view.center
-        vc.view.addSubview(activity)
-        activity.startAnimating()
-        return activity
-    }
-    
+//    private func showLoader(onViewController vc: UIViewController) -> UIActivityIndicatorView {
+//        let activity = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+//        activity.center = vc.view.center
+//        vc.view.addSubview(activity)
+//        activity.startAnimating()
+//        return activity
+//    }
+//    
     private func notifyWebLoginSuccess(result: TwitterAuthResult) {
         self.webLoginDelegate?.didSuccedRetrivingToken(result)
         hideSafariViewController()

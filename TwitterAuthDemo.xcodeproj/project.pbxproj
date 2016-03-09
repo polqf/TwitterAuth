@@ -30,6 +30,9 @@
 		C1129BE81C8F89B5007CE8D7 /* Threading.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1129BDB1C8F89B5007CE8D7 /* Threading.swift */; };
 		C1129BEB1C8F8D5B007CE8D7 /* WebManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1129BEA1C8F8D5B007CE8D7 /* WebManager.swift */; };
 		C1E4047B1C90DB9200D50166 /* TwitterAuthStructs.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E4047A1C90DB9200D50166 /* TwitterAuthStructs.swift */; };
+		C1E4047D1C90EA3600D50166 /* FillableLoaders.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1E4047C1C90EA3600D50166 /* FillableLoaders.framework */; };
+		C1E4047F1C90EAA800D50166 /* LoaderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E4047E1C90EAA800D50166 /* LoaderManager.swift */; };
+		C1E404811C90EB7600D50166 /* FillableLoaders.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = C1E4047C1C90EA3600D50166 /* FillableLoaders.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,6 +71,16 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C1E404801C90EB6F00D50166 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				C1E404811C90EB7600D50166 /* FillableLoaders.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -97,6 +110,8 @@
 		C1129BDB1C8F89B5007CE8D7 /* Threading.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Threading.swift; sourceTree = "<group>"; };
 		C1129BEA1C8F8D5B007CE8D7 /* WebManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebManager.swift; sourceTree = "<group>"; };
 		C1E4047A1C90DB9200D50166 /* TwitterAuthStructs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TwitterAuthStructs.swift; sourceTree = "<group>"; };
+		C1E4047C1C90EA3600D50166 /* FillableLoaders.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FillableLoaders.framework; path = Carthage/Build/iOS/FillableLoaders.framework; sourceTree = "<group>"; };
+		C1E4047E1C90EAA800D50166 /* LoaderManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoaderManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,6 +127,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C1E4047D1C90EA3600D50166 /* FillableLoaders.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -129,6 +145,7 @@
 		C1129B8C1C8F8885007CE8D7 = {
 			isa = PBXGroup;
 			children = (
+				C1E4047C1C90EA3600D50166 /* FillableLoaders.framework */,
 				C1129B971C8F8885007CE8D7 /* TwitterAuthDemo */,
 				C1129BB01C8F88B8007CE8D7 /* TwitterAuth */,
 				C1129BBE1C8F88B8007CE8D7 /* TwitterAuthTests */,
@@ -183,6 +200,7 @@
 				C1129BD91C8F89B5007CE8D7 /* TwitterAuth.swift */,
 				C1129BD71C8F89B5007CE8D7 /* TwitterAuthResult.swift */,
 				C1E4047A1C90DB9200D50166 /* TwitterAuthStructs.swift */,
+				C1E4047E1C90EAA800D50166 /* LoaderManager.swift */,
 				C1129BEA1C8F8D5B007CE8D7 /* WebManager.swift */,
 				C1129BDA1C8F89B5007CE8D7 /* SignedRequest.swift */,
 				C1129BCE1C8F89B5007CE8D7 /* APIManager.swift */,
@@ -258,6 +276,7 @@
 				C1129BAB1C8F88B8007CE8D7 /* Frameworks */,
 				C1129BAC1C8F88B8007CE8D7 /* Headers */,
 				C1129BAD1C8F88B8007CE8D7 /* Resources */,
+				C1E404801C90EB6F00D50166 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -373,6 +392,7 @@
 				C1129BE71C8F89B5007CE8D7 /* SignedRequest.swift in Sources */,
 				C1129BDD1C8F89B5007CE8D7 /* NSDataExtension.swift in Sources */,
 				C1129BE31C8F89B5007CE8D7 /* OAuthCore.m in Sources */,
+				C1E4047F1C90EAA800D50166 /* LoaderManager.swift in Sources */,
 				C1129BEB1C8F8D5B007CE8D7 /* WebManager.swift in Sources */,
 				C1129BE81C8F89B5007CE8D7 /* Threading.swift in Sources */,
 				C1129BDC1C8F89B5007CE8D7 /* APIManager.swift in Sources */,
@@ -538,6 +558,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = TwitterAuth/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -557,6 +581,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = TwitterAuth/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
