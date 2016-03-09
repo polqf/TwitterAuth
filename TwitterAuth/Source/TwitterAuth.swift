@@ -19,6 +19,8 @@ public enum TwitterAuthError: ErrorType {
     case BadURLRequest
     case NoAccessToAccounts
     case NoAvailableAccounts
+    case WrongCallback
+    case UnableToLoadWeb
     case Unknown
 }
 
@@ -35,6 +37,7 @@ public class TwitterAuth {
     private var apiManager: APIManager = APIManager()
     private let webManager: TwicketWebManager = TwicketWebManager()
     
+    private var callbackStringURL: String = ""
     private var lastOAuthToken: String?
     
     public func configure(withConsumerKey consumerKey: String, consumerSecret: String, callbackURL: String) {
@@ -42,7 +45,7 @@ public class TwitterAuth {
         self.apiManager.consumerSecret = consumerSecret
         self.webManager.consumerSecret = consumerKey
         self.webManager.consumerKey = consumerSecret
-        self.webManager.callbackStringURL = callbackURL
+        self.callbackStringURL = callbackURL
     }
     
     public func executeReverseOAuth(forAccount account: ACAccount, completion: TwitterAuthCompletion) {
@@ -64,7 +67,7 @@ public class TwitterAuth {
     }
     
     public func presentWebLogin(fromViewController viewController: UIViewController) {
-        apiManager.obtainRequestToken(self.webManager.callbackStringURL) { token, error in
+        apiManager.obtainRequestToken(self.callbackStringURL) { token, error in
             Threading.executeOnMainThread {
                 guard let token = token else {
                     self.notifyWebLoginError(error ?? .Unknown)
@@ -78,10 +81,11 @@ public class TwitterAuth {
     
     public func processAuthCallback(callback: NSURL) {
         let callback = callback.absoluteString
-        guard callback.containsString(self.webManager.callbackStringURL),
+        guard !callbackStringURL.isEmpty &&
+            callback.containsString(self.callbackStringURL),
             let result = RedirectionResult(stringResponse: callback)
             where result.oauthToken == self.lastOAuthToken else {
-                //TODO: DO SOMETHING
+                self.notifyWebLoginError(.WrongCallback)
                 return
         }
         
