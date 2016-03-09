@@ -67,8 +67,10 @@ public class TwitterAuth {
     }
     
     public func presentWebLogin(fromViewController viewController: UIViewController) {
+        let loader = showLoader(onViewController: viewController)
         apiManager.obtainRequestToken(self.callbackStringURL) { token, error in
             Threading.executeOnMainThread {
+                loader.stopAnimating()
                 guard let token = token else {
                     self.notifyWebLoginError(error ?? .Unknown)
                     return
@@ -102,6 +104,14 @@ public class TwitterAuth {
     
     
     //MARK: Private methods
+    
+    private func showLoader(onViewController vc: UIViewController) -> UIActivityIndicatorView {
+        let activity = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+        activity.center = vc.view.center
+        vc.view.addSubview(activity)
+        activity.startAnimating()
+        return activity
+    }
     
     private func notifyWebLoginSuccess(result: TwitterAuthResult) {
         self.webLoginDelegate?.didSuccedRetrivingToken(result)
