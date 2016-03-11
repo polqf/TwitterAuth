@@ -91,6 +91,7 @@ class ViewController: UIViewController {
         }
         twitterAuth.configure(withConsumerKey: consumerKey, consumerSecret: consumerSecret, callbackURL: callbackURL)
         twitterAuth.webLoginDelegate = self
+        twitterAuth.saveInACAccounts = true
         lookForAccounts()
     }
     
@@ -101,7 +102,7 @@ class ViewController: UIViewController {
         navigationItem.setLeftBarButtonItem(webButton, animated: true)
     }
     
-    func lookForAccounts() {
+    func lookForAccounts(completion: (Bool -> Void)? = nil) {
         let accountStore = ACAccountStore()
         let type = accountStore.accountTypeWithAccountTypeIdentifier(ACAccountTypeIdentifierTwitter)
         accountStore.requestAccessToAccountsWithType(type, options: nil) { succeed, error in
@@ -110,6 +111,7 @@ class ViewController: UIViewController {
                 if accounts.isEmpty { print("No available accounts") }
                 self.accounts = accounts
             }
+            completion?(succeed)
         }
     }
     
@@ -176,6 +178,9 @@ extension ViewController: TwitterAuthWebLoginDelegate {
     
     func didSuccedRetrivingToken(result: TwitterAuthResult) {
         displayResultOnScreen(result, error: nil)
+        lookForAccounts { succeed in
+            if succeed { self.tableView.reloadData() }
+        }
     }
     
     func didFailRetrievingToken(error: TwitterAuthError) {

@@ -9,6 +9,7 @@
 import Foundation
 import Accounts
 import UIKit
+import TwicketLoader
 
 public typealias TwitterAuthCompletion = (result: TwitterAuthResult?, error: TwitterAuthError?) -> ()
 public typealias TwitterAuthErrorCompletion = (error: TwitterAuthError?) -> ()
@@ -21,6 +22,7 @@ public enum TwitterAuthError: ErrorType {
     case NoAvailableAccounts
     case WrongCallback
     case UnableToLoadWeb
+    case UnableToSaveAccount
     case Unknown
 }
 
@@ -33,9 +35,11 @@ public class TwitterAuth {
     
     public static let sharedInstance = TwitterAuth()
     public weak var webLoginDelegate: TwitterAuthWebLoginDelegate?
+    public var saveInACAccounts: Bool = false
     
     private var apiManager: APIManager = APIManager()
     private let webManager: TwicketWebManager = TwicketWebManager()
+    private let accountStore = ACAccountStore()
     
     private var callbackStringURL: String = ""
     private var lastOAuthToken: String?
@@ -67,8 +71,9 @@ public class TwitterAuth {
     }
     
     public func presentWebLogin(fromViewController viewController: UIViewController) {
-        let loader = LoaderManager.showLoader()
-        apiManager.obtainRequestToken(self.callbackStringURL) { token, error in
+        let loader = TwicketLoader.createLoaderInView(viewController.view)
+        loader.showLoader()
+        apiManager.obtainRequestToken(callbackStringURL) { token, error in
             Threading.executeOnMainThread {
                 loader.removeLoader()
                 guard let token = token else {
@@ -97,6 +102,12 @@ public class TwitterAuth {
                     self.notifyWebLoginError(error ?? .Unknown)
                     return
                 }
+                if self.saveInACAccounts {
+                    self.saveAccount(withResult: result) { succeed in
+                        succeed ? self.notifyWebLoginSuccess(result) : self.notifyWebLoginError(.UnableToSaveAccount)
+                    }
+                    return
+                }
                 self.notifyWebLoginSuccess(result)
             }
         }
@@ -120,14 +131,30 @@ public class TwitterAuth {
         self.webManager.clearSafariViewController()
     }
     
+    
+    //MARK: ACAccount
+    
+    private func saveAccount(withResult result: TwitterAuthResult, completion: (Bool) -> ()) {
+        let credential = ACAccountCredential(OAuthToken: result.oauthToken, tokenSecret: result.oauthTokenSecret)
+        let type = accountStore.accountTypeWithAccountTypeIdentifier(ACAccountTypeIdentifierTwitter)
+        let account = ACAccount(accountType: type)
+        account.credential = credential
+        
+        accountStore.saveAccount(account) { (succeed, error) in
+            completion(succeed)
+            if !succeed {
+                NSLog("[TwitterAuth] ERROR saving new account to ACAccount:\n\(error.localizedDescription)")
+            }
+        }
+    }
+    
     private func getTwitterAccounts(completion: (accounts: [ACAccount]?, error: TwitterAuthError?) -> ()) {
-        let accountStore = ACAccountStore()
         let type = accountStore.accountTypeWithAccountTypeIdentifier(ACAccountTypeIdentifierTwitter)
         accountStore.requestAccessToAccountsWithType(type, options: nil) { succeed, error in
             guard succeed else {
                 return completion(accounts: nil, error: .NoAccessToAccounts)
             }
-            guard let accounts = accountStore.accountsWithAccountType(type) as? [ACAccount]
+            guard let accounts = self.accountStore.accountsWithAccountType(type) as? [ACAccount]
                 where !accounts.isEmpty else {
                     return completion(accounts: nil, error: .NoAvailableAccounts)
             }
@@ -138,7 +165,6 @@ public class TwitterAuth {
     private func showAccountsAlertView(onViewController vc: UIViewController,
         withAccounts accounts: [ACAccount],
         selectedAccountBlock: (selectedAccount: ACAccount) -> ()) {
-            
             let alert = UIAlertController(title: "Available Accounts",
                 message: "(Twitter)",
                 preferredStyle: .ActionSheet)
