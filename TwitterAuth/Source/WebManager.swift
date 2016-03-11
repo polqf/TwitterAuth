@@ -37,7 +37,7 @@ class TwicketWebManager: NSObject {
     //MARK: Private
     
     private func loginURL(withToken token: String) -> NSURL {
-        return NSURL(string: "https://api.twitter.com/oauth/authenticate?oauth_token=\(token)")!
+        return NSURL(string: "https://api.twitter.com/oauth/authenticate?oauth_token=\(token)&force_login=true")!
     }
     
     private func _checkNecessaryProperties() {
