@@ -23,6 +23,7 @@ public enum TwitterAuthError: ErrorType {
     case WrongCallback
     case UnableToLoadWeb
     case UnableToSaveAccount
+    case UserCancelled
     case Unknown
 }
 
@@ -97,7 +98,6 @@ public class TwitterAuth {
         }
         
         apiManager.obtainAccessToken(withResult: result) { (result, error) -> () in
-            Threading.executeOnMainThread {
                 guard let result = result else {
                     self.notifyWebLoginError(error ?? .Unknown)
                     return
@@ -109,7 +109,6 @@ public class TwitterAuth {
                     return
                 }
                 self.notifyWebLoginSuccess(result)
-            }
         }
     }
     
@@ -117,13 +116,17 @@ public class TwitterAuth {
     //MARK: Private methods
     
     private func notifyWebLoginSuccess(result: TwitterAuthResult) {
-        self.webLoginDelegate?.didSuccedRetrivingToken(result)
-        hideSafariViewController()
+        Threading.executeOnMainThread {
+            self.webLoginDelegate?.didSuccedRetrivingToken(result)
+            self.hideSafariViewController()
+        }
     }
     
     private func notifyWebLoginError(error: TwitterAuthError) {
-        self.webLoginDelegate?.didFailRetrievingToken(error ?? .Unknown)
-        hideSafariViewController()
+        Threading.executeOnMainThread {
+            self.webLoginDelegate?.didFailRetrievingToken(error ?? .Unknown)
+            self.hideSafariViewController()
+        }
     }
     
     private func hideSafariViewController() {

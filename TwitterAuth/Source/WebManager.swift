@@ -49,6 +49,10 @@ class TwicketWebManager: NSObject {
 
 extension TwicketWebManager: SFSafariViewControllerDelegate {
     
+    func safariViewControllerDidFinish(controller: SFSafariViewController) {
+        TwitterAuth.sharedInstance.webLoginDelegate?.didFailRetrievingToken(.UserCancelled)
+    }
+
     func safariViewController(controller: SFSafariViewController, didCompleteInitialLoad didLoadSuccessfully: Bool) {
         if didLoadSuccessfully { return }
         TwitterAuth.sharedInstance.webLoginDelegate?.didFailRetrievingToken(.UnableToLoadWeb)
