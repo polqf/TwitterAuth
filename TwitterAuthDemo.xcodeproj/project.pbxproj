@@ -18,9 +18,7 @@
 		C1129BC51C8F88B8007CE8D7 /* TwitterAuth.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C1129BAF1C8F88B8007CE8D7 /* TwitterAuth.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C1129BDC1C8F89B5007CE8D7 /* APIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1129BCE1C8F89B5007CE8D7 /* APIManager.swift */; };
 		C1129BDD1C8F89B5007CE8D7 /* NSDataExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1129BCF1C8F89B5007CE8D7 /* NSDataExtension.swift */; };
-		C1129BDE1C8F89B5007CE8D7 /* NSData+Base64.h in Headers */ = {isa = PBXBuildFile; fileRef = C1129BD11C8F89B5007CE8D7 /* NSData+Base64.h */; };
 		C1129BDF1C8F89B5007CE8D7 /* NSData+Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = C1129BD21C8F89B5007CE8D7 /* NSData+Base64.m */; };
-		C1129BE01C8F89B5007CE8D7 /* OAuth+Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = C1129BD31C8F89B5007CE8D7 /* OAuth+Additions.h */; };
 		C1129BE11C8F89B5007CE8D7 /* OAuth+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = C1129BD41C8F89B5007CE8D7 /* OAuth+Additions.m */; };
 		C1129BE21C8F89B5007CE8D7 /* OAuthCore.h in Headers */ = {isa = PBXBuildFile; fileRef = C1129BD51C8F89B5007CE8D7 /* OAuthCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C1129BE31C8F89B5007CE8D7 /* OAuthCore.m in Sources */ = {isa = PBXBuildFile; fileRef = C1129BD61C8F89B5007CE8D7 /* OAuthCore.m */; };
@@ -234,9 +232,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C1129BDE1C8F89B5007CE8D7 /* NSData+Base64.h in Headers */,
 				C1129BE21C8F89B5007CE8D7 /* OAuthCore.h in Headers */,
-				C1129BE01C8F89B5007CE8D7 /* OAuth+Additions.h in Headers */,
 				C1129BB21C8F88B8007CE8D7 /* TwitterAuth.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -549,6 +545,7 @@
 		C1129BC71C8F88B8007CE8D7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -573,6 +570,7 @@
 		C1129BC81C8F88B8007CE8D7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
