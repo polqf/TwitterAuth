@@ -27,7 +27,9 @@
 		C1129BE71C8F89B5007CE8D7 /* SignedRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1129BDA1C8F89B5007CE8D7 /* SignedRequest.swift */; };
 		C1129BE81C8F89B5007CE8D7 /* Threading.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1129BDB1C8F89B5007CE8D7 /* Threading.swift */; };
 		C1129BEB1C8F8D5B007CE8D7 /* WebManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1129BEA1C8F8D5B007CE8D7 /* WebManager.swift */; };
-		C1BDA5A61C935F7200A5232C /* TwicketLoader.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = C1BDA5A51C935F7200A5232C /* TwicketLoader.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		C1C617D11C95D4640084FF33 /* TwicketLoader.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1BDA5A51C935F7200A5232C /* TwicketLoader.framework */; };
+		C1C617D31C95D4880084FF33 /* TwicketLoader.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1BDA5A51C935F7200A5232C /* TwicketLoader.framework */; };
+		C1C617D41C95D4880084FF33 /* TwicketLoader.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C1BDA5A51C935F7200A5232C /* TwicketLoader.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C1E4047B1C90DB9200D50166 /* TwitterAuthStructs.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E4047A1C90DB9200D50166 /* TwitterAuthStructs.swift */; };
 /* End PBXBuildFile section */
 
@@ -63,18 +65,9 @@
 			dstSubfolderSpec = 10;
 			files = (
 				C1129BC51C8F88B8007CE8D7 /* TwitterAuth.framework in Embed Frameworks */,
+				C1C617D41C95D4880084FF33 /* TwicketLoader.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		C1BDA5701C935B7300A5232C /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				C1BDA5A61C935F7200A5232C /* TwicketLoader.framework in CopyFiles */,
-			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -115,6 +108,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C1129BC41C8F88B8007CE8D7 /* TwitterAuth.framework in Frameworks */,
+				C1C617D31C95D4880084FF33 /* TwicketLoader.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -122,6 +116,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C1C617D11C95D4640084FF33 /* TwicketLoader.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -267,7 +262,6 @@
 				C1129BAB1C8F88B8007CE8D7 /* Frameworks */,
 				C1129BAC1C8F88B8007CE8D7 /* Headers */,
 				C1129BAD1C8F88B8007CE8D7 /* Resources */,
-				C1BDA5701C935B7300A5232C /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -521,6 +515,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = TwitterAuthDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -534,6 +532,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = TwitterAuthDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
