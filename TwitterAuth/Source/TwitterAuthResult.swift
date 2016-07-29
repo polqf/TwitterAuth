@@ -14,10 +14,10 @@ private let userIDKey = "user_id="
 private let userNameKey = "screen_name="
 
 enum CredentialsIndex: Int {
-    case OAuthToken
-    case OAuthTokenSecret
-    case UserID
-    case UserName
+    case oAuthToken
+    case oAuthTokenSecret
+    case userID
+    case userName
 }
 
 public struct TwitterAuthResult {
@@ -27,32 +27,32 @@ public struct TwitterAuthResult {
     public let userName: String
     
     public init?(stringResponse: String) {
-        let components = TwitterAuthResult.parseString(stringResponse)
+        let components = TwitterAuthResult.parse(stringResponse)
         guard components.count == 4 else { return nil }
-        oauthToken = components[CredentialsIndex.OAuthToken.rawValue]
-        oauthTokenSecret = components[CredentialsIndex.OAuthTokenSecret.rawValue]
-        userID = components[CredentialsIndex.UserID.rawValue]
-        userName = components[CredentialsIndex.UserName.rawValue]
+        oauthToken = components[CredentialsIndex.oAuthToken.rawValue]
+        oauthTokenSecret = components[CredentialsIndex.oAuthTokenSecret.rawValue]
+        userID = components[CredentialsIndex.userID.rawValue]
+        userName = components[CredentialsIndex.userName.rawValue]
     }
     
-    static func parseString(string: String) -> [String]{
-        return string.componentsSeparatedByString("&")
+    static func parse(_ string: String) -> [String]{
+        return string.components(separatedBy: "&")
             .flatMap { string -> String? in
                 var stringRange: Range<String.Index>?
-                if let range = string.rangeOfString(oauthTokenKey) {
+                if let range = string.range(of: oauthTokenKey) {
                     stringRange = range
                 }
-                else if let range = string.rangeOfString(oauthTokenSecretKey) {
+                else if let range = string.range(of: oauthTokenSecretKey) {
                     stringRange = range
                 }
-                else if let range = string.rangeOfString(userIDKey) {
+                else if let range = string.range(of: userIDKey) {
                     stringRange = range
                 }
-                else if let range = string.rangeOfString(userNameKey) {
+                else if let range = string.range(of: userNameKey) {
                     stringRange = range
                 }
                 guard let range = stringRange else { return nil }
-                return string.substringFromIndex(range.endIndex)
+                return string.substring(from: range.upperBound)
         }
     }
 }

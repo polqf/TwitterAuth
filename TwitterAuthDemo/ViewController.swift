@@ -35,7 +35,7 @@ class ViewController: UIViewController {
             width: self.view.frame.width - 40,
             height: labelHeight)
         label.text = "Token:"
-        label.textAlignment = .Center
+        label.textAlignment = .center
         label.numberOfLines = 0
         return label
     }()
@@ -47,7 +47,7 @@ class ViewController: UIViewController {
             width: self.view.frame.width - 40,
             height: labelHeight)
         label.text = "Token Secret:"
-        label.textAlignment = .Center
+        label.textAlignment = .center
         label.numberOfLines = 0
         return label
     }()
@@ -59,7 +59,7 @@ class ViewController: UIViewController {
             width: self.view.frame.width - 40,
             height: labelHeight)
         label.text = "UserName:"
-        label.textAlignment = .Center
+        label.textAlignment = .center
         label.numberOfLines = 0
         return label
     }()
@@ -67,7 +67,7 @@ class ViewController: UIViewController {
     
     var accounts: [ACAccount] = [] {
         didSet {
-            dispatch_async(dispatch_get_main_queue()) {
+            DispatchQueue.main.async {
                 self.tableView.reloadData()
             }
         }
@@ -77,7 +77,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         tableView.frame = view.bounds
         tableView.frame.size = CGSize(width: view.bounds.width, height: view.bounds.height/2)
-        tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: reuseID)
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: reuseID)
         view.backgroundColor = UIColor(white: 0.95, alpha: 1.0)
         view.addSubview(tableView)
         view.addSubview(tokenLabel)
@@ -86,7 +86,7 @@ class ViewController: UIViewController {
         title = "Available Accounts"
         addNavBarButtons()
         guard !consumerKey.isEmpty || !consumerSecret.isEmpty else {
-            showAlert("Consumer Key and Secret are empty!")
+            showAlert(text: "Consumer Key and Secret are empty!")
             return
         }
         twitterAuth.configure(withConsumerKey: consumerKey, consumerSecret: consumerSecret, callbackURL: callbackURL)
@@ -96,18 +96,18 @@ class ViewController: UIViewController {
     }
     
     func addNavBarButtons() {
-        let alertButton = UIBarButtonItem(title: "Show Alert", style: .Plain, target: self, action: "showReverseOAuthAlert")
-        navigationItem.setRightBarButtonItem(alertButton, animated: true)
-        let webButton = UIBarButtonItem(title: "Web Login", style: .Plain, target: self, action: "openWebLogin")
-        navigationItem.setLeftBarButtonItem(webButton, animated: true)
+        let alertButton = UIBarButtonItem(title: "Show Alert", style: .plain, target: self, action: #selector(ViewController.showReverseOAuthAlert))
+        navigationItem.setRightBarButton(alertButton, animated: true)
+        let webButton = UIBarButtonItem(title: "Web Login", style: .plain, target: self, action: #selector(ViewController.openWebLogin))
+        navigationItem.setLeftBarButton(webButton, animated: true)
     }
     
-    func lookForAccounts(completion: (Bool -> Void)? = nil) {
+    func lookForAccounts(completion: ((Bool) -> Void)? = nil) {
         let accountStore = ACAccountStore()
-        let type = accountStore.accountTypeWithAccountTypeIdentifier(ACAccountTypeIdentifierTwitter)
-        accountStore.requestAccessToAccountsWithType(type, options: nil) { succeed, error in
+        let type = accountStore.accountType(withAccountTypeIdentifier: ACAccountTypeIdentifierTwitter)
+        accountStore.requestAccessToAccounts(with: type, options: nil) { succeed, error in
             if succeed {
-                guard let accounts = accountStore.accountsWithAccountType(type) as? [ACAccount] else { return }
+                guard let accounts = accountStore.accounts(with: type) as? [ACAccount] else { return }
                 if accounts.isEmpty { print("No available accounts") }
                 self.accounts = accounts
             }
@@ -136,15 +136,15 @@ class ViewController: UIViewController {
     }
     
     func showAlert(text: String) {
-        dispatch_async(dispatch_get_main_queue()) {
+        DispatchQueue.main.async {
             let alert = UIAlertController(title: "Alert",
                 message: text,
-                preferredStyle: .Alert)
-            let cancel = UIAlertAction(title: "OK", style: .Cancel) { _ in
-                alert.dismissViewControllerAnimated(true, completion: nil)
+                preferredStyle: .alert)
+            let cancel = UIAlertAction(title: "OK", style: .cancel) { _ in
+                alert.dismiss(animated: true, completion: nil)
             }
             alert.addAction(cancel)
-            self.presentViewController(alert, animated: true, completion: nil)
+            self.present(alert, animated: true, completion: nil)
         }
     }
 }
@@ -153,37 +153,37 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     
     //MARK: TableView
     
-    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 60
     }
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return accounts.count
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .Subtitle, reuseIdentifier: reuseID)
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: reuseID)
         cell.textLabel?.text = accounts[indexPath.row].username
         cell.detailTextLabel?.text = String(accounts[indexPath.row].accountType)
         return cell
     }
     
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        tableView.deselectRowAtIndexPath(indexPath, animated: true)
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
         twitterAuth.executeReverseOAuth(forAccount: accounts[indexPath.row], completion: displayResultOnScreen)
     }
 }
 
 extension ViewController: TwitterAuthWebLoginDelegate {
     
-    func didSuccedRetrivingToken(result: TwitterAuthResult) {
-        displayResultOnScreen(result, error: nil)
+    func didSuccedRetrivingToken(_ result: TwitterAuthResult) {
+        displayResultOnScreen(result: result, error: nil)
         lookForAccounts { succeed in
             if succeed { self.tableView.reloadData() }
         }
     }
     
-    func didFailRetrievingToken(error: TwitterAuthError) {
-        displayResultOnScreen(nil, error: error)
+    func didFailRetrievingToken(_ error: TwitterAuthError) {
+        displayResultOnScreen(result: nil, error: error)
     }
 }

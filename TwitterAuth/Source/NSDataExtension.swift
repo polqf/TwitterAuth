@@ -8,9 +8,9 @@
 
 import Foundation
 
-extension NSData {
+extension Data {
     func toString() -> String? {
-        guard let signedAuthSignature = String(data: self, encoding: NSUTF8StringEncoding) else {
+        guard let signedAuthSignature = String(data: self, encoding: String.Encoding.utf8) else {
             return nil
         }
         return signedAuthSignature

@@ -8,7 +8,7 @@
 
 import UIKit
 
-public class TwicketLoader: UIView {
+public class TwicketLoader: UIView, CAAnimationDelegate {
     
     enum AnimationKeys: String {
         case arc1
@@ -20,9 +20,9 @@ public class TwicketLoader: UIView {
     private static let size: CGFloat = 50
     private let lineWidth: CGFloat = 3
     private var radiusDiff: CGFloat { return self.frameHeight/5 }
-    private var rotateDuration1: NSTimeInterval = 1.25
-    private var rotateDuration2: NSTimeInterval = 1.0
-    private var rotateDuration3: NSTimeInterval = 1.15
+    private var rotateDuration1: TimeInterval = 1.25
+    private var rotateDuration2: TimeInterval = 1.0
+    private var rotateDuration3: TimeInterval = 1.15
     private var arc1: CAShapeLayer = CAShapeLayer()
     private var arc2: CAShapeLayer = CAShapeLayer()
     private var arc3: CAShapeLayer = CAShapeLayer()
@@ -30,58 +30,64 @@ public class TwicketLoader: UIView {
     private init(empty: Bool = false, size: CGFloat) {
         let viewFrame = CGRect(x: 0, y: 0, width: size, height: size)
         super.init(frame: viewFrame)
-        let angleWidth = empty ? 0 : CGFloat(M_PI_2)
-        arc1 = TwicketLoader.arcLayer(radius: size/2 - 0*radiusDiff, angleWidth: angleWidth, center: center, lineWidth: lineWidth, color: UIColor.redColor())
-        arc2 = TwicketLoader.arcLayer(radius: size/2 - 1*radiusDiff, angleWidth: angleWidth, center: center, lineWidth: lineWidth, color: UIColor.blueColor())
-        arc3 = TwicketLoader.arcLayer(radius: size/2 - 2*radiusDiff, angleWidth: angleWidth, center: center, lineWidth: lineWidth, color: UIColor.yellowColor())
-        arc1.frame = viewFrame
-        arc2.frame = viewFrame
-        arc3.frame = viewFrame
-        layer.addSublayer(arc1)
-        layer.addSublayer(arc2)
-        layer.addSublayer(arc3)
+        configure(withSize: size, empty: empty)
     }
     
     required public init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        super.init(coder: aDecoder)
+        configure(withSize: frameHeight, empty: false)
     }
     
-    public static func createEmptyLoaderInView(view: UIView, size: CGFloat = size) -> TwicketLoader {
+    private func configure(withSize size: CGFloat, empty: Bool) {
+        let viewFrame = CGRect(x: 0, y: 0, width: size, height: size)
+        let angleWidth = empty ? 0 : CGFloat(M_PI_2)
+        let center = CGPoint(x: size/2, y: size/2)
+        arc1 = TwicketLoader.arcLayer(radius: size/2 - 0*radiusDiff, angleWidth: angleWidth, center: center, lineWidth: lineWidth, color: UIColor.red())
+        arc2 = TwicketLoader.arcLayer(radius: size/2 - 1*radiusDiff, angleWidth: angleWidth, center: center, lineWidth: lineWidth, color: UIColor.blue())
+        arc3 = TwicketLoader.arcLayer(radius: size/2 - 2*radiusDiff, angleWidth: angleWidth, center: center, lineWidth: lineWidth, color: UIColor.yellow())
+        
+        [arc1, arc2, arc3].forEach {
+            $0.frame = viewFrame
+            layer.addSublayer($0)
+        }
+    }
+    
+    public static func createEmptyLoader(in view: UIView, size: CGFloat = size) -> TwicketLoader {
         let loader = TwicketLoader(empty: true, size: size)
-        loader.centerInView(view)
+        loader.center(in: view)
         view.addSubview(loader)
         return loader
     }
     
-    public static func createLoaderInView(view: UIView, size: CGFloat = size) -> TwicketLoader {
+    public static func createLoader(in view: UIView, size: CGFloat = size) -> TwicketLoader {
         let loader = TwicketLoader(size: size)
-        loader.hidden = true
+        loader.isHidden = true
         loader.alpha = 0.0
-        loader.centerInView(view)
+        loader.center(in: view)
         view.addSubview(loader)
         return loader
     }
     
-    public func showLoader(animated: Bool = true) {
+    public func showLoader(_ animated: Bool = true) {
         if animate { return }
         animate = true
         let animations = { self.alpha = 1.0 }
         if animated {
-            UIView.animateWithDuration(0.5, animations: animations)
+            UIView.animate(withDuration: 0.5, animations: animations)
         }
         else {
             animations()
         }
-        hidden = false
+        isHidden = false
         rotateArc1()
         rotateArc2()
         rotateArc3()
     }
     
-    public func hideLoader(animated: Bool = true, completion: (() -> ())? = nil) {
+    public func hideLoader(_ animated: Bool = true, completion: (() -> ())? = nil) {
         let animations = { self.alpha = 0.0 }
         let removeLoader: (Bool) -> () = { completed in
-            self.hidden = true
+            self.isHidden = true
             self.cancelAnimations()
             completion?()
         }
@@ -91,7 +97,7 @@ public class TwicketLoader: UIView {
             removeLoader(true)
             return
         }
-        UIView.animateWithDuration(0.5, animations: animations, completion: removeLoader)
+        UIView.animate(withDuration: 0.5, animations: animations, completion: removeLoader)
     }
     
     public func removeLoader(animated: Bool = true) {
@@ -100,11 +106,11 @@ public class TwicketLoader: UIView {
         }
     }
     
-    public func advanceToProgress(progress: CGFloat) {
+    public func advance(to progress: CGFloat) {
         let maxValue = CGFloat(2*M_PI)
         let angleWidth = maxValue*progress
         if angleWidth > maxValue { return }
-        UIView.animateWithDuration(0.5) {
+        UIView.animate(withDuration: 0.5) {
             self.arc1.path = TwicketLoader.arcPath(radius: self.frameHeight/2 - 0*self.radiusDiff,
                 angleWidth: angleWidth,
                 center: CGPoint(x: self.frameWidth/2, y: self.frameHeight/2))
@@ -140,7 +146,7 @@ public class TwicketLoader: UIView {
         rotate(arc3, withDuration: rotateDuration3, animation: AnimationKeys.arc3)
     }
     
-    private func rotate(shape: CAShapeLayer, withDuration duration: NSTimeInterval, animation: AnimationKeys) {
+    private func rotate(_ shape: CAShapeLayer, withDuration duration: TimeInterval, animation: AnimationKeys) {
         if !animate { return }
         let rotate = CAKeyframeAnimation(keyPath: "transform.rotation.z")
         if animation != .arc2 {
@@ -152,23 +158,22 @@ public class TwicketLoader: UIView {
         rotate.duration = duration
         rotate.delegate = self
         rotate.setValue(animation.rawValue, forKey: "identifier")
-        shape.addAnimation(rotate, forKey: "rotation")
+        shape.add(rotate, forKey: "rotation")
     }
     
     private func randomAngle() -> CGFloat {
-        return randomBetweenNumbers(CGFloat(M_PI_2), secondNum: CGFloat(M_PI_2)/3)
+        return randomBetween(CGFloat(M_PI_2), and: CGFloat(M_PI_2)/3)
     }
     
-    private func randomBetweenNumbers(firstNum: CGFloat, secondNum: CGFloat) -> CGFloat {
+    private func randomBetween(_ firstNum: CGFloat, and secondNum: CGFloat) -> CGFloat {
         return CGFloat(arc4random()) / CGFloat(UINT32_MAX) * abs(firstNum - secondNum) + min(firstNum, secondNum)
     }
     
     
     //MARK: Animation delegate
-    
-    override public func animationDidStop(anim: CAAnimation, finished flag: Bool) {
-        guard let identifier = anim.valueForKey("identifier") as? String
-            where animate else { return }
+
+    public func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
+        guard animate, let identifier = anim.value(forKey: "identifier") as? String else { return }
         if identifier == AnimationKeys.arc1.rawValue {
             rotateArc1()
         }
@@ -183,23 +188,23 @@ public class TwicketLoader: UIView {
     
     //MARK: Arc helper
     
-    private static func arcLayer(radius radius: CGFloat, angleWidth: CGFloat, center: CGPoint, lineWidth: CGFloat, color: UIColor) -> CAShapeLayer {
+    private static func arcLayer(radius: CGFloat, angleWidth: CGFloat, center: CGPoint, lineWidth: CGFloat, color: UIColor) -> CAShapeLayer {
         let progressRingLayer = CAShapeLayer()
         progressRingLayer.path = arcPath(radius: radius, angleWidth: angleWidth, center: center)
         progressRingLayer.lineWidth = lineWidth
-        progressRingLayer.strokeColor = color.CGColor
+        progressRingLayer.strokeColor = color.cgColor
         progressRingLayer.lineCap = kCALineCapRound
-        progressRingLayer.fillColor = UIColor.clearColor().CGColor
+        progressRingLayer.fillColor = UIColor.clear().cgColor
         return progressRingLayer
     }
     
-    private static func arcPath(radius radius: CGFloat, angleWidth: CGFloat, center: CGPoint, inverse: Bool = false) -> CGPath {
+    private static func arcPath(radius: CGFloat, angleWidth: CGFloat, center: CGPoint, inverse: Bool = false) -> CGPath {
         let initialAngle = CGFloat(-M_PI_2)
         return UIBezierPath(arcCenter: center,
             radius: radius,
             startAngle: initialAngle,
             endAngle: inverse ? -angleWidth + initialAngle : angleWidth + initialAngle,
-            clockwise: !inverse).CGPath
+            clockwise: !inverse).cgPath
     }
 
 }

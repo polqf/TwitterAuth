@@ -14,22 +14,22 @@ import TwicketLoader
 public typealias TwitterAuthCompletion = (result: TwitterAuthResult?, error: TwitterAuthError?) -> ()
 public typealias TwitterAuthErrorCompletion = (error: TwitterAuthError?) -> ()
 
-public enum TwitterAuthError: ErrorType {
-    case ErrorGettingHeader
-    case ErrorGettingTokens
-    case BadURLRequest
-    case NoAccessToAccounts
-    case NoAvailableAccounts
-    case WrongCallback
-    case UnableToLoadWeb
-    case UnableToSaveAccount
-    case UserCancelled
-    case Unknown
+public enum TwitterAuthError: ErrorProtocol {
+    case errorGettingHeader
+    case errorGettingTokens
+    case badURLRequest
+    case noAccessToAccounts
+    case noAvailableAccounts
+    case wrongCallback
+    case unableToLoadWeb
+    case unableToSaveAccount
+    case userCancelled
+    case unknown
 }
 
 public protocol TwitterAuthWebLoginDelegate: class {
-    func didSuccedRetrivingToken(result: TwitterAuthResult)
-    func didFailRetrievingToken(error: TwitterAuthError)
+    func didSuccedRetrivingToken(_ result: TwitterAuthResult)
+    func didFailRetrievingToken(_ error: TwitterAuthError)
 }
 
 public class TwitterAuth {
@@ -63,7 +63,7 @@ public class TwitterAuth {
         completion: TwitterAuthCompletion) {
             getTwitterAccounts { accounts, error in
                 guard let accounts = accounts else {
-                    return Threading.executeOnMainThread { completion(result: nil, error: error ?? .NoAccessToAccounts) }
+                    return Threading.executeOnMainThread { completion(result: nil, error: error ?? .noAccessToAccounts) }
                 }
                 self.showAccountsAlertView(onViewController: vc, withAccounts: accounts) { selectedAccount in
                     self.executeReverseOAuth(forAccount: selectedAccount, completion: completion)
@@ -72,13 +72,13 @@ public class TwitterAuth {
     }
     
     public func presentWebLogin(fromViewController viewController: UIViewController) {
-        let loader = TwicketLoader.createLoaderInView(viewController.view)
+        let loader = TwicketLoader.createLoader(in: viewController.view)
         loader.showLoader()
-        apiManager.obtainRequestToken(callbackStringURL) { token, error in
+        apiManager.obtainRequestToken(callback: callbackStringURL) { token, error in
             Threading.executeOnMainThread {
                 loader.removeLoader()
                 guard let token = token else {
-                    self.notifyWebLoginError(error ?? .Unknown)
+                    self.notifyWebLoginError(error ?? .unknown)
                     return
                 }
                 self.lastOAuthToken = token
@@ -87,24 +87,23 @@ public class TwitterAuth {
         }
     }
     
-    public func processAuthCallback(callback: NSURL) {
+    public func processAuthCallback(_ callback: URL) {
         let callback = callback.absoluteString
         guard !callbackStringURL.isEmpty &&
-            callback.containsString(self.callbackStringURL),
-            let result = RedirectionResult(stringResponse: callback)
-            where result.oauthToken == self.lastOAuthToken else {
-                self.notifyWebLoginError(.WrongCallback)
+            (callback?.contains(self.callbackStringURL))!,
+            let result = RedirectionResult(stringResponse: callback!), result.oauthToken == self.lastOAuthToken else {
+                self.notifyWebLoginError(.wrongCallback)
                 return
         }
         
         apiManager.obtainAccessToken(withResult: result) { (result, error) -> () in
                 guard let result = result else {
-                    self.notifyWebLoginError(error ?? .Unknown)
+                    self.notifyWebLoginError(error ?? .unknown)
                     return
                 }
                 if self.saveInACAccounts {
                     self.saveAccount(withResult: result) { succeed in
-                        succeed ? self.notifyWebLoginSuccess(result) : self.notifyWebLoginError(.UnableToSaveAccount)
+                        succeed ? self.notifyWebLoginSuccess(result) : self.notifyWebLoginError(.unableToSaveAccount)
                     }
                     return
                 }
@@ -115,16 +114,16 @@ public class TwitterAuth {
     
     //MARK: Private methods
     
-    private func notifyWebLoginSuccess(result: TwitterAuthResult) {
+    private func notifyWebLoginSuccess(_ result: TwitterAuthResult) {
         Threading.executeOnMainThread {
             self.webLoginDelegate?.didSuccedRetrivingToken(result)
             self.hideSafariViewController()
         }
     }
     
-    private func notifyWebLoginError(error: TwitterAuthError) {
+    private func notifyWebLoginError(_ error: TwitterAuthError) {
         Threading.executeOnMainThread {
-            self.webLoginDelegate?.didFailRetrievingToken(error ?? .Unknown)
+            self.webLoginDelegate?.didFailRetrievingToken(error ?? .unknown)
             self.hideSafariViewController()
         }
     }
@@ -138,28 +137,27 @@ public class TwitterAuth {
     //MARK: ACAccount
     
     private func saveAccount(withResult result: TwitterAuthResult, completion: (Bool) -> ()) {
-        let credential = ACAccountCredential(OAuthToken: result.oauthToken, tokenSecret: result.oauthTokenSecret)
-        let type = accountStore.accountTypeWithAccountTypeIdentifier(ACAccountTypeIdentifierTwitter)
+        let credential = ACAccountCredential(oAuthToken: result.oauthToken, tokenSecret: result.oauthTokenSecret)
+        let type = accountStore.accountType(withAccountTypeIdentifier: ACAccountTypeIdentifierTwitter)
         let account = ACAccount(accountType: type)
-        account.credential = credential
+        account?.credential = credential
         
         accountStore.saveAccount(account) { (succeed, error) in
             completion(succeed)
             if !succeed {
-                NSLog("[TwitterAuth] ERROR saving new account to ACAccount:\n\(error.localizedDescription)")
+                NSLog("[TwitterAuth] ERROR saving new account to ACAccount:\n\(error?.localizedDescription)")
             }
         }
     }
     
     private func getTwitterAccounts(completion: (accounts: [ACAccount]?, error: TwitterAuthError?) -> ()) {
-        let type = accountStore.accountTypeWithAccountTypeIdentifier(ACAccountTypeIdentifierTwitter)
-        accountStore.requestAccessToAccountsWithType(type, options: nil) { succeed, error in
+        let type = accountStore.accountType(withAccountTypeIdentifier: ACAccountTypeIdentifierTwitter)
+        accountStore.requestAccessToAccounts(with: type, options: nil) { succeed, error in
             guard succeed else {
-                return completion(accounts: nil, error: .NoAccessToAccounts)
+                return completion(accounts: nil, error: .noAccessToAccounts)
             }
-            guard let accounts = self.accountStore.accountsWithAccountType(type) as? [ACAccount]
-                where !accounts.isEmpty else {
-                    return completion(accounts: nil, error: .NoAvailableAccounts)
+            guard let accounts = self.accountStore.accounts(with: type) as? [ACAccount], !accounts.isEmpty else {
+                    return completion(accounts: nil, error: .noAvailableAccounts)
             }
             completion(accounts: accounts, error: nil)
         }
@@ -170,22 +168,22 @@ public class TwitterAuth {
         selectedAccountBlock: (selectedAccount: ACAccount) -> ()) {
             let alert = UIAlertController(title: "Available Accounts",
                 message: "(Twitter)",
-                preferredStyle: .ActionSheet)
+                preferredStyle: .actionSheet)
             accounts.forEach { account in
                 let action = UIAlertAction(title: account.username,
-                    style: .Default) { (action) in
+                    style: .default) { (action) in
                         selectedAccountBlock(selectedAccount: account)
                 }
                 alert.addAction(action)
             }
             
-            let cancel = UIAlertAction(title: "Cancel", style: .Cancel) { _ in
-                alert.dismissViewControllerAnimated(true, completion: nil)
+            let cancel = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+                alert.dismiss(animated: true, completion: nil)
             }
             alert.addAction(cancel)
             
             Threading.executeOnMainThread {
-                vc.presentViewController(alert, animated: true, completion: nil)
+                vc.present(alert, animated: true, completion: nil)
             }
     }
 }
