@@ -30,27 +30,27 @@ struct APIManager {
         _checkNecessaryProperties()
         obtainAuthorizationHeader { (signature, error) in
             guard let signedAuthSignature = signature else {
-                return completion(result: nil, error: error)
+                return completion(nil, error)
             }
             
             self.getTokens(for: account, signature: signedAuthSignature) { (data, error) in
                 guard let stringResponse = data?.toString() else {
-                    return completion(result: nil, error: error)
+                    return completion(nil, error)
                 }
                 let result = TwitterAuthResult(stringResponse: stringResponse)
-                completion(result: result, error: error)
+                completion(result, error)
             }
         }
     }
     
-    func obtainRequestToken(callback: String, completion: (token: String?, error: TwitterAuthError?) -> ()) {
+    func obtainRequestToken(callback: String, completion: @escaping (_ token: String?, _ error: TwitterAuthError?) -> ()) {
         _checkNecessaryProperties()
         let request = createRequestTokenRequest(with: callback)
         perform(request, mapper: RequestTokenResult.init) { (element, error) in
             guard let element = element, element.oauthCallbackConfirmed else {
-                return completion(token: nil, error: error)
+                return completion(nil, error)
             }
-            completion(token: element.oauthToken, error: nil)
+            completion(element.oauthToken, nil)
         }
     }
     
@@ -59,9 +59,9 @@ struct APIManager {
         let request = createAccessTokenRequest(token: result.oauthToken, verifier: result.oauthVerifier)
         perform(request, mapper: TwitterAuthResult.init) { (element, error) in
             guard let element = element else {
-                return completion(result: nil, error: error)
+                return completion(nil, error)
             }
-            completion(result: element, error: nil)
+            completion(element, nil)
         }
         
     }
@@ -69,55 +69,55 @@ struct APIManager {
     
     //MARK: Private methods
     
-    private func obtainAuthorizationHeader(completion: (signature: String?, error: TwitterAuthError?) -> ()) {
+    private func obtainAuthorizationHeader(completion: @escaping (_ signature: String?, _ error: TwitterAuthError?) -> ()) {
         guard let url = URL(string: requestTokenURL) else {
-            return completion(signature: nil, error: .badURLRequest)
+            return completion(nil, .badURLRequest)
         }
-        let params: [String : AnyObject] = [authModeKey : reverseAuthMode]
+        let params: [String : AnyObject] = [authModeKey : reverseAuthMode as AnyObject]
         let request = SignedRequest(url: url,
             parameters: params,
             method: .POST,
             consumerKey: consumerKey,
             consumerSecret: consumerSecret)
         guard let urlRequest = request.urlRequest else {
-            return completion(signature: nil, error: .badURLRequest)
+            return completion(nil, .badURLRequest)
         }
         
-        perform(urlRequest, mapper: { $0 }) { (element, error) -> () in
-            completion(signature: element, error: error != nil ? .errorGettingHeader : nil)
+        perform(urlRequest, mapper: String.init) { (element, error) -> () in
+            completion(element, error != nil ? .errorGettingHeader : nil)
         }
     }
     
     private func getTokens(for account: ACAccount,
         signature: String,
-        completion: (data: Data?, error: TwitterAuthError?) -> ()) {
+        completion: @escaping (_ data: Data?, _ error: TwitterAuthError?) -> ()) {
             guard let url = URL(string: accessTokenURL) else {
-                return completion(data: nil, error: .badURLRequest)
+                return completion(nil, .badURLRequest)
             }
             let params: [String : AnyObject] = [
-                reverseAuthTarget : consumerKey,
-                reverseAuthParams : signature
+                reverseAuthTarget : consumerKey as AnyObject,
+                reverseAuthParams : signature as AnyObject
             ]
             
             let slrequest = request(with: url, parameters: params, requestMethod: .POST)
             slrequest.account = account
             slrequest.perform { (data, response, error) in
                 if let _ = error {
-                    return completion(data: nil, error: .errorGettingTokens)
+                    return completion(nil, .errorGettingTokens)
                 }
-                completion(data: data, error: nil)
+                completion(data, nil)
             }
     }
     
     private func perform<T>(_ request: URLRequest,
         mapper: ((String) -> T?),
-        completion: (element: T?, error: TwitterAuthError?) -> ()) {
+        completion: @escaping (_ element: T?, _ error: TwitterAuthError?) -> ()) {
             let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
                 guard let data = data, let string = String(data: data, encoding: String.Encoding.utf8) else {
-                    return completion(element: nil, error: .badURLRequest)
+                    return completion(nil, .badURLRequest)
                 }
                 let result = mapper(string)
-                completion(element: result, error: nil)
+                completion(result, nil)
             }
             task.resume()
     }
@@ -143,7 +143,7 @@ struct APIManager {
     
     private func createAccessTokenRequest(token: String, verifier: String) -> URLRequest {
         return SignedRequest(url: URL(string: accessTokenURL)!,
-            parameters: [oauthVerifierKey : verifier],
+            parameters: [oauthVerifierKey : verifier as AnyObject],
             method: .POST,
             consumerKey: consumerKey,
             consumerSecret: consumerSecret,

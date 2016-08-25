@@ -9,7 +9,7 @@
 import Foundation
 
 struct Threading {
-    static func executeOnMainThread(_ block: (Void) -> Void) {
+    static func executeOnMainThread(_ block: @escaping (Void) -> Void) {
         if Thread.isMainThread {
             return block()
         }

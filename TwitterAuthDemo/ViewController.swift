@@ -86,7 +86,7 @@ class ViewController: UIViewController {
         title = "Available Accounts"
         addNavBarButtons()
         guard !consumerKey.isEmpty || !consumerSecret.isEmpty else {
-            showAlert(text: "Consumer Key and Secret are empty!")
+            showAlert("Consumer Key and Secret are empty!")
             return
         }
         twitterAuth.configure(withConsumerKey: consumerKey, consumerSecret: consumerSecret, callbackURL: callbackURL)
@@ -102,7 +102,7 @@ class ViewController: UIViewController {
         navigationItem.setLeftBarButton(webButton, animated: true)
     }
     
-    func lookForAccounts(completion: ((Bool) -> Void)? = nil) {
+    func lookForAccounts(_ completion: ((Bool) -> Void)? = nil) {
         let accountStore = ACAccountStore()
         let type = accountStore.accountType(withAccountTypeIdentifier: ACAccountTypeIdentifierTwitter)
         accountStore.requestAccessToAccounts(with: type, options: nil) { succeed, error in
@@ -123,7 +123,7 @@ class ViewController: UIViewController {
         twitterAuth.presentWebLogin(fromViewController: self)
     }
     
-    func displayResultOnScreen(result: TwitterAuthResult?, error: TwitterAuthError?) {
+    func displayResultOnScreen(_ result: TwitterAuthResult?, error: TwitterAuthError?) {
         guard let reverseAuthResult = result else {
             self.tokenLabel.text = ""
             self.tokenSecretLabel.text = "Error"
@@ -135,7 +135,7 @@ class ViewController: UIViewController {
         self.userNameLabel.text = "UserName: \n\(reverseAuthResult.userName)"
     }
     
-    func showAlert(text: String) {
+    func showAlert(_ text: String) {
         DispatchQueue.main.async {
             let alert = UIAlertController(title: "Alert",
                 message: text,
@@ -164,7 +164,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: reuseID)
         cell.textLabel?.text = accounts[indexPath.row].username
-        cell.detailTextLabel?.text = String(accounts[indexPath.row].accountType)
+        cell.detailTextLabel?.text = String(describing: accounts[indexPath.row].accountType)
         return cell
     }
     
@@ -177,13 +177,13 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
 extension ViewController: TwitterAuthWebLoginDelegate {
     
     func didSuccedRetrivingToken(_ result: TwitterAuthResult) {
-        displayResultOnScreen(result: result, error: nil)
+        displayResultOnScreen(result, error: nil)
         lookForAccounts { succeed in
             if succeed { self.tableView.reloadData() }
         }
     }
     
     func didFailRetrievingToken(_ error: TwitterAuthError) {
-        displayResultOnScreen(result: nil, error: error)
+        displayResultOnScreen(nil, error: error)
     }
 }

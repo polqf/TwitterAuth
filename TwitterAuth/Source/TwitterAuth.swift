@@ -11,10 +11,10 @@ import Accounts
 import UIKit
 import TwicketLoader
 
-public typealias TwitterAuthCompletion = (result: TwitterAuthResult?, error: TwitterAuthError?) -> ()
-public typealias TwitterAuthErrorCompletion = (error: TwitterAuthError?) -> ()
+public typealias TwitterAuthCompletion = (_ result: TwitterAuthResult?, _ error: TwitterAuthError?) -> ()
+public typealias TwitterAuthErrorCompletion = (_ error: TwitterAuthError?) -> ()
 
-public enum TwitterAuthError: ErrorProtocol {
+public enum TwitterAuthError: Error {
     case errorGettingHeader
     case errorGettingTokens
     case badURLRequest
@@ -55,7 +55,7 @@ public class TwitterAuth {
     
     public func executeReverseOAuth(forAccount account: ACAccount, completion: TwitterAuthCompletion) {
         apiManager.executeReverseAuth(forAccount: account) { result, error in
-            Threading.executeOnMainThread { completion(result: result, error: error) }
+            Threading.executeOnMainThread { completion(result, error) }
         }
     }
     
@@ -63,7 +63,7 @@ public class TwitterAuth {
         completion: TwitterAuthCompletion) {
             getTwitterAccounts { accounts, error in
                 guard let accounts = accounts else {
-                    return Threading.executeOnMainThread { completion(result: nil, error: error ?? .noAccessToAccounts) }
+                    return Threading.executeOnMainThread { completion(nil, error ?? .noAccessToAccounts) }
                 }
                 self.showAccountsAlertView(onViewController: vc, withAccounts: accounts) { selectedAccount in
                     self.executeReverseOAuth(forAccount: selectedAccount, completion: completion)
@@ -90,8 +90,8 @@ public class TwitterAuth {
     public func processAuthCallback(_ callback: URL) {
         let callback = callback.absoluteString
         guard !callbackStringURL.isEmpty &&
-            (callback?.contains(self.callbackStringURL))!,
-            let result = RedirectionResult(stringResponse: callback!), result.oauthToken == self.lastOAuthToken else {
+            (callback.contains(self.callbackStringURL)),
+            let result = RedirectionResult(stringResponse: callback), result.oauthToken == self.lastOAuthToken else {
                 self.notifyWebLoginError(.wrongCallback)
                 return
         }
@@ -123,7 +123,7 @@ public class TwitterAuth {
     
     private func notifyWebLoginError(_ error: TwitterAuthError) {
         Threading.executeOnMainThread {
-            self.webLoginDelegate?.didFailRetrievingToken(error ?? .unknown)
+            self.webLoginDelegate?.didFailRetrievingToken(error)
             self.hideSafariViewController()
         }
     }
@@ -136,7 +136,7 @@ public class TwitterAuth {
     
     //MARK: ACAccount
     
-    private func saveAccount(withResult result: TwitterAuthResult, completion: (Bool) -> ()) {
+    private func saveAccount(withResult result: TwitterAuthResult, completion: @escaping (Bool) -> ()) {
         let credential = ACAccountCredential(oAuthToken: result.oauthToken, tokenSecret: result.oauthTokenSecret)
         let type = accountStore.accountType(withAccountTypeIdentifier: ACAccountTypeIdentifierTwitter)
         let account = ACAccount(accountType: type)
@@ -150,29 +150,29 @@ public class TwitterAuth {
         }
     }
     
-    private func getTwitterAccounts(completion: (accounts: [ACAccount]?, error: TwitterAuthError?) -> ()) {
+    private func getTwitterAccounts(completion: @escaping (_ accounts: [ACAccount]?, _ error: TwitterAuthError?) -> ()) {
         let type = accountStore.accountType(withAccountTypeIdentifier: ACAccountTypeIdentifierTwitter)
         accountStore.requestAccessToAccounts(with: type, options: nil) { succeed, error in
             guard succeed else {
-                return completion(accounts: nil, error: .noAccessToAccounts)
+                return completion(nil, .noAccessToAccounts)
             }
             guard let accounts = self.accountStore.accounts(with: type) as? [ACAccount], !accounts.isEmpty else {
-                    return completion(accounts: nil, error: .noAvailableAccounts)
+                    return completion(nil, .noAvailableAccounts)
             }
-            completion(accounts: accounts, error: nil)
+            completion(accounts, nil)
         }
     }
     
     private func showAccountsAlertView(onViewController vc: UIViewController,
         withAccounts accounts: [ACAccount],
-        selectedAccountBlock: (selectedAccount: ACAccount) -> ()) {
+        selectedAccountBlock: @escaping (_ selectedAccount: ACAccount) -> ()) {
             let alert = UIAlertController(title: "Available Accounts",
                 message: "(Twitter)",
                 preferredStyle: .actionSheet)
             accounts.forEach { account in
                 let action = UIAlertAction(title: account.username,
                     style: .default) { (action) in
-                        selectedAccountBlock(selectedAccount: account)
+                        selectedAccountBlock(account)
                 }
                 alert.addAction(action)
             }

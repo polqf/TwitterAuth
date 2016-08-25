@@ -42,9 +42,9 @@ public class TwicketLoader: UIView, CAAnimationDelegate {
         let viewFrame = CGRect(x: 0, y: 0, width: size, height: size)
         let angleWidth = empty ? 0 : CGFloat(M_PI_2)
         let center = CGPoint(x: size/2, y: size/2)
-        arc1 = TwicketLoader.arcLayer(radius: size/2 - 0*radiusDiff, angleWidth: angleWidth, center: center, lineWidth: lineWidth, color: UIColor.red())
-        arc2 = TwicketLoader.arcLayer(radius: size/2 - 1*radiusDiff, angleWidth: angleWidth, center: center, lineWidth: lineWidth, color: UIColor.blue())
-        arc3 = TwicketLoader.arcLayer(radius: size/2 - 2*radiusDiff, angleWidth: angleWidth, center: center, lineWidth: lineWidth, color: UIColor.yellow())
+        arc1 = TwicketLoader.arcLayer(radius: size/2 - 0*radiusDiff, angleWidth: angleWidth, center: center, lineWidth: lineWidth, color: UIColor.red)
+        arc2 = TwicketLoader.arcLayer(radius: size/2 - 1*radiusDiff, angleWidth: angleWidth, center: center, lineWidth: lineWidth, color: UIColor.blue)
+        arc3 = TwicketLoader.arcLayer(radius: size/2 - 2*radiusDiff, angleWidth: angleWidth, center: center, lineWidth: lineWidth, color: UIColor.yellow)
         
         [arc1, arc2, arc3].forEach {
             $0.frame = viewFrame
@@ -194,7 +194,7 @@ public class TwicketLoader: UIView, CAAnimationDelegate {
         progressRingLayer.lineWidth = lineWidth
         progressRingLayer.strokeColor = color.cgColor
         progressRingLayer.lineCap = kCALineCapRound
-        progressRingLayer.fillColor = UIColor.clear().cgColor
+        progressRingLayer.fillColor = UIColor.clear.cgColor
         return progressRingLayer
     }
     
