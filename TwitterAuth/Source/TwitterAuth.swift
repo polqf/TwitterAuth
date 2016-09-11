@@ -53,14 +53,14 @@ public class TwitterAuth {
         self.callbackStringURL = callbackURL
     }
     
-    public func executeReverseOAuth(forAccount account: ACAccount, completion: TwitterAuthCompletion) {
+    public func executeReverseOAuth(forAccount account: ACAccount, completion: @escaping TwitterAuthCompletion) {
         apiManager.executeReverseAuth(forAccount: account) { result, error in
             Threading.executeOnMainThread { completion(result, error) }
         }
     }
     
     public func executeReverseOAuthWithAvailableAccounts(onViewController vc: UIViewController,
-        completion: TwitterAuthCompletion) {
+        completion: @escaping TwitterAuthCompletion) {
             getTwitterAccounts { accounts, error in
                 guard let accounts = accounts else {
                     return Threading.executeOnMainThread { completion(nil, error ?? .noAccessToAccounts) }

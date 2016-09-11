@@ -26,7 +26,7 @@ struct APIManager {
     var consumerKey: String = ""
     var consumerSecret: String = ""
     
-    func executeReverseAuth(forAccount account: ACAccount, completion: TwitterAuthCompletion) {
+    func executeReverseAuth(forAccount account: ACAccount, completion: @escaping TwitterAuthCompletion) {
         _checkNecessaryProperties()
         obtainAuthorizationHeader { (signature, error) in
             guard let signedAuthSignature = signature else {
@@ -54,7 +54,7 @@ struct APIManager {
         }
     }
     
-    func obtainAccessToken(withResult result: RedirectionResult, completion: TwitterAuthCompletion) {
+    func obtainAccessToken(withResult result: RedirectionResult, completion: @escaping TwitterAuthCompletion) {
         _checkNecessaryProperties()
         let request = createAccessTokenRequest(token: result.oauthToken, verifier: result.oauthVerifier)
         perform(request, mapper: TwitterAuthResult.init) { (element, error) in
@@ -110,7 +110,7 @@ struct APIManager {
     }
     
     private func perform<T>(_ request: URLRequest,
-        mapper: ((String) -> T?),
+        mapper: @escaping ((String) -> T?),
         completion: @escaping (_ element: T?, _ error: TwitterAuthError?) -> ()) {
             let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
                 guard let data = data, let string = String(data: data, encoding: String.Encoding.utf8) else {
