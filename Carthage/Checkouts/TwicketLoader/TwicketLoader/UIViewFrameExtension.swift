@@ -92,7 +92,7 @@ extension UIView {
         }
     }
     
-    func centerInView(view: UIView) {
+    func center(in view: UIView) {
         centerX = view.frameWidth/2
         centerY = view.frameHeight/2
     }

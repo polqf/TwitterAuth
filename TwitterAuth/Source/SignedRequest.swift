@@ -14,11 +14,11 @@ public enum MethodType: String {
     case DELETE
 }
 
-private let timeoutInterval: NSTimeInterval = 8
+private let timeoutInterval: TimeInterval = 8
 private let authorizationHeaderKey = "Authorization"
 
 public struct SignedRequest {
-    let url: NSURL
+    let url: URL
     let parameters: [String : AnyObject]
     let method: MethodType
     let consumerKey: String
@@ -26,11 +26,11 @@ public struct SignedRequest {
     let oauthToken: String?
     let oauthCallback: String?
     
-    public var urlRequest: NSURLRequest? {
+    public var urlRequest: URLRequest? {
         return buildRequest()
     }
     
-    public init(url: NSURL,
+    public init(url: URL,
         parameters: [String : AnyObject] = [:],
         method: MethodType,
         consumerKey: String,
@@ -49,21 +49,21 @@ public struct SignedRequest {
     
     //MARK: Private
     
-    private func buildRequest() -> NSURLRequest? {
+    private func buildRequest() -> URLRequest? {
         guard let bodyData = buildBodyData() else { return nil }
         let authorizationHeader = OAuthorizationHeaderWithCallback(url, method.rawValue, bodyData, consumerKey, consumerSecret, oauthToken, nil, oauthCallback)
-        let request = NSMutableURLRequest(URL: url, cachePolicy: .UseProtocolCachePolicy, timeoutInterval: timeoutInterval)
-        request.HTTPMethod = method.rawValue
+        let request = NSMutableURLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: timeoutInterval)
+        request.httpMethod = method.rawValue
         request.setValue(authorizationHeader, forHTTPHeaderField: authorizationHeaderKey)
-        request.HTTPBody = bodyData
-        return request
+        request.httpBody = bodyData
+        return request as URLRequest
     }
     
-    private func buildBodyData() -> NSData? {
+    private func buildBodyData() -> Data? {
         let string: String = parameters.reduce("") { (initial, dict) -> String in
             guard let value = dict.1 as? String else { return initial }
             return initial + "\(dict.0)=\(value)&"
         }
-        return string.dataUsingEncoding(NSUTF8StringEncoding)
+        return string.data(using: String.Encoding.utf8)
     }
 }

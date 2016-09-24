@@ -19,15 +19,15 @@ class TwicketWebManager: NSObject {
     
     func openLogin(onViewController viewController: UIViewController, token: String) {
         _checkNecessaryProperties()
-        let safariVC = SFSafariViewController(URL: loginURL(withToken: token))
+        let safariVC = SFSafariViewController(url: loginURL(with: token))
         safariVC.delegate = self
-        safariVC.modalPresentationStyle = .FormSheet
+        safariVC.modalPresentationStyle = .formSheet
         self.safariViewController = safariVC
-        viewController.navigationController?.presentViewController(safariVC, animated: true, completion: nil)
+        viewController.navigationController?.present(safariVC, animated: true, completion: nil)
     }
     
     func clearSafariViewController() {
-        safariViewController?.dismissViewControllerAnimated(true) {
+        safariViewController?.dismiss(animated: true) {
             self.safariViewController?.delegate = nil
             self.safariViewController = nil
         }
@@ -36,8 +36,8 @@ class TwicketWebManager: NSObject {
     
     //MARK: Private
     
-    private func loginURL(withToken token: String) -> NSURL {
-        return NSURL(string: "https://api.twitter.com/oauth/authenticate?oauth_token=\(token)&force_login=true")!
+    private func loginURL(with token: String) -> URL {
+        return URL(string: "https://api.twitter.com/oauth/authenticate?oauth_token=\(token)&force_login=true")!
     }
     
     private func _checkNecessaryProperties() {
@@ -49,12 +49,12 @@ class TwicketWebManager: NSObject {
 
 extension TwicketWebManager: SFSafariViewControllerDelegate {
     
-    func safariViewControllerDidFinish(controller: SFSafariViewController) {
-        TwitterAuth.sharedInstance.webLoginDelegate?.didFailRetrievingToken(.UserCancelled)
+    func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
+        TwitterAuth.sharedInstance.webLoginDelegate?.didFailRetrievingToken(.userCancelled)
     }
 
-    func safariViewController(controller: SFSafariViewController, didCompleteInitialLoad didLoadSuccessfully: Bool) {
+    func safariViewController(_ controller: SFSafariViewController, didCompleteInitialLoad didLoadSuccessfully: Bool) {
         if didLoadSuccessfully { return }
-        TwitterAuth.sharedInstance.webLoginDelegate?.didFailRetrievingToken(.UnableToLoadWeb)
+        TwitterAuth.sharedInstance.webLoginDelegate?.didFailRetrievingToken(.unableToLoadWeb)
     }
 }

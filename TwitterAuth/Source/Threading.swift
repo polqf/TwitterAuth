@@ -9,10 +9,10 @@
 import Foundation
 
 struct Threading {
-    static func executeOnMainThread(block: Void -> Void) {
-        if NSThread.isMainThread() {
+    static func executeOnMainThread(_ block: @escaping (Void) -> Void) {
+        if Thread.isMainThread {
             return block()
         }
-        dispatch_async(dispatch_get_main_queue(), block)
+        DispatchQueue.main.async(execute: block)
     }
 }
