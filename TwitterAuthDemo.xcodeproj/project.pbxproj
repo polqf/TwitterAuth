@@ -27,9 +27,6 @@
 		C1129BE71C8F89B5007CE8D7 /* SignedRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1129BDA1C8F89B5007CE8D7 /* SignedRequest.swift */; };
 		C1129BE81C8F89B5007CE8D7 /* Threading.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1129BDB1C8F89B5007CE8D7 /* Threading.swift */; };
 		C1129BEB1C8F8D5B007CE8D7 /* WebManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1129BEA1C8F8D5B007CE8D7 /* WebManager.swift */; };
-		C1C617D11C95D4640084FF33 /* TwicketLoader.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1BDA5A51C935F7200A5232C /* TwicketLoader.framework */; };
-		C1C617D31C95D4880084FF33 /* TwicketLoader.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1BDA5A51C935F7200A5232C /* TwicketLoader.framework */; };
-		C1C617D41C95D4880084FF33 /* TwicketLoader.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C1BDA5A51C935F7200A5232C /* TwicketLoader.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C1E4047B1C90DB9200D50166 /* TwitterAuthStructs.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E4047A1C90DB9200D50166 /* TwitterAuthStructs.swift */; };
 /* End PBXBuildFile section */
 
@@ -65,7 +62,6 @@
 			dstSubfolderSpec = 10;
 			files = (
 				C1129BC51C8F88B8007CE8D7 /* TwitterAuth.framework in Embed Frameworks */,
-				C1C617D41C95D4880084FF33 /* TwicketLoader.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -98,7 +94,6 @@
 		C1129BDA1C8F89B5007CE8D7 /* SignedRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignedRequest.swift; sourceTree = "<group>"; };
 		C1129BDB1C8F89B5007CE8D7 /* Threading.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Threading.swift; sourceTree = "<group>"; };
 		C1129BEA1C8F8D5B007CE8D7 /* WebManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebManager.swift; sourceTree = "<group>"; };
-		C1BDA5A51C935F7200A5232C /* TwicketLoader.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = TwicketLoader.framework; path = Carthage/Build/iOS/TwicketLoader.framework; sourceTree = "<group>"; };
 		C1E4047A1C90DB9200D50166 /* TwitterAuthStructs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TwitterAuthStructs.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -108,7 +103,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				C1129BC41C8F88B8007CE8D7 /* TwitterAuth.framework in Frameworks */,
-				C1C617D31C95D4880084FF33 /* TwicketLoader.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -116,7 +110,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C1C617D11C95D4640084FF33 /* TwicketLoader.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -134,7 +127,6 @@
 		C1129B8C1C8F8885007CE8D7 = {
 			isa = PBXGroup;
 			children = (
-				C1BDA5A51C935F7200A5232C /* TwicketLoader.framework */,
 				C1129B971C8F8885007CE8D7 /* TwitterAuthDemo */,
 				C1129BB01C8F88B8007CE8D7 /* TwitterAuth */,
 				C1129BBE1C8F88B8007CE8D7 /* TwitterAuthTests */,

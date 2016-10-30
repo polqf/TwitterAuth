@@ -9,7 +9,6 @@
 import Foundation
 import Accounts
 import UIKit
-import TwicketLoader
 
 public typealias TwitterAuthCompletion = (_ result: TwitterAuthResult?, _ error: TwitterAuthError?) -> ()
 public typealias TwitterAuthErrorCompletion = (_ error: TwitterAuthError?) -> ()
@@ -72,11 +71,8 @@ public class TwitterAuth {
     }
     
     public func presentWebLogin(fromViewController viewController: UIViewController) {
-        let loader = TwicketLoader.createLoader(in: viewController.view)
-        loader.showLoader()
         apiManager.obtainRequestToken(callback: callbackStringURL) { token, error in
             Threading.executeOnMainThread {
-                loader.removeLoader()
                 guard let token = token else {
                     self.notifyWebLoginError(error ?? .unknown)
                     return
