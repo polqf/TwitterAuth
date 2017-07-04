@@ -91,36 +91,43 @@ public class TwitterAuth {
                 self.notifyWebLoginError(.wrongCallback)
                 return
         }
-        
+
         apiManager.obtainAccessToken(withResult: result) { (result, error) -> () in
-                guard let result = result else {
-                    self.notifyWebLoginError(error ?? .unknown)
-                    return
-                }
-                if self.saveInACAccounts {
-                    self.saveAccount(withResult: result) { succeed in
-                        succeed ? self.notifyWebLoginSuccess(result) : self.notifyWebLoginError(.unableToSaveAccount)
-                    }
-                    return
-                }
+            guard let result = result else {
+                self.notifyWebLoginError(error ?? .unknown)
+                return
+            }
+
+            // In iOS 11 we can no longer access to Twitter in ACAccounts
+            var isiOS11 = false
+            if #available(iOS 11, *) {
+                isiOS11 = true
+            }
+
+            if isiOS11 || self.saveInACAccounts == false {
                 self.notifyWebLoginSuccess(result)
+                return
+            }
+
+            self.saveAccount(withResult: result) { succeed in
+                succeed ? self.notifyWebLoginSuccess(result) : self.notifyWebLoginError(.unableToSaveAccount)
+            }
         }
     }
-    
-    
+
     //MARK: Private methods
-    
+
     private func notifyWebLoginSuccess(_ result: TwitterAuthResult) {
         Threading.executeOnMainThread {
-            self.webLoginDelegate?.didSuccedRetrivingToken(result)
             self.hideSafariViewController()
+            self.webLoginDelegate?.didSuccedRetrivingToken(result)
         }
     }
     
     private func notifyWebLoginError(_ error: TwitterAuthError) {
         Threading.executeOnMainThread {
-            self.webLoginDelegate?.didFailRetrievingToken(error)
             self.hideSafariViewController()
+            self.webLoginDelegate?.didFailRetrievingToken(error)
         }
     }
     
